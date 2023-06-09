@@ -24,7 +24,7 @@ sudo sh -c "iptables-save > /etc/iptables/rules.v4"
 ```
 7. Reiniciar el servicio de red
 ```bash
-sudo sh -c "iptables-save > /etc/iptables/rules.v4"
+sudo systemctl restart networking
 ```
 8. Para verificar la configuracion de network
 ```bash
@@ -53,4 +53,48 @@ sudo nano /etc/iptables/rules.v4
 sudo systemctl restart iptables
 ```
 
-### 3. Las configuraciones de iptables se deberán cargar automáticamente al iniciar las VMs.
+### 4. El tráfico desde/hacia la interfaz loopback deberá ser posible.
+1. Añade reglas para permitir el tráfico en la interfaz loopback
+```bash
+sudo iptables -A INPUT -i lo -j ACCEPT
+sudo iptables -A OUTPUT -o lo -j ACCEPT
+```
+2. Guarda la configuracion en persistente
+```bash
+sudo sh -c "iptables-save > /etc/iptables/rules.v4"
+```
+3. Reinicia el servicio de red
+```bash
+sudo systemctl restart networking
+```
+4. para verificar las configuraciones
+```bash
+sudo iptables -L
+```
+### 5. Las únicas VMs que podrán acceder vía SSH a esta VM serán las del sector de IT
+1. Abre el archivo de configuración SSH
+```bash
+sudo nano /etc/ssh/sshd_config
+```
+2. Buscar la linea q comienza con `#PermitRootLogin` y descomentarla
+3. Agrega una linea abajo con los IPs de las maquina que permitiras acceso
+```
+AllowUsers root@<IP>
+```
+### 6. Se permitira iniciar conexiones desde la red LAN hacia la red WAN (Navegar por internet), no al reves. Para probar este punto, considere crear una ruta estatica en una maquina en la WAN simulada.
+1. Para configurar las reglas de iptables de trafico saliente, esto elimina las reglas existentes
+```bash
+sudo iptables -F
+sudo iptables -X
+sudo iptables -t nat -F
+sudo iptables -t nat -X
+sudo iptables -t mangle -F
+sudo iptables -t mangle -X
+sudo iptables -P INPUT ACCEPT
+sudo iptables -P FORWARD ACCEPT
+sudo iptables -P OUTPUT ACCEPT
+```
+2. Reiniciar el servicio de red
+```bash
+sudo systemctl restart networking
+```
