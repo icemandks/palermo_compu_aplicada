@@ -1,33 +1,32 @@
 ## Router
 ### 1. Configurar la VM para que actue como router
-1. Configura la interfaz de red para conectarse a Internet (puede ser Ethernet o WiFi)
-2. identificar si existen interfaces de red instaladas
+1. identificar si existen interfaces de red instaladas
 ```bash
 ip a
 ```
-3. Activa el enrutamiento IP, esto permite que la máquina Debian enrute el tráfico entre las interfaces de red.
+2. Activa el enrutamiento IP, esto permite que la máquina Debian enrute el tráfico entre las interfaces de red.
 ```bash
 sudo sysctl -w net.ipv4.ip_forward=1
 ```
-4. Settear ips?
-5. Usando iptables `sudo apt install iptables` configurar el forwarding the paquetes, estos comandos permiten que los paquetes se reenvíen entre las interfaces de red.
+3. Settear ips?
+4. Usando iptables `sudo apt install iptables` configurar el forwarding the paquetes, estos comandos permiten que los paquetes se reenvíen entre las interfaces de red.
 ```bash
 sudo iptables -A FORWARD -i eth0 -o eth1 -j ACCEPT
 sudo iptables -A FORWARD -i eth1 -o eth0 -j ACCEPT
 ```
-6. Configura el masquerading (NAT), esto permite que los paquetes salientes de la red local se enmascaren con la dirección IP de la interfaz de entrada.
+5. Configura el masquerading (NAT), esto permite que los paquetes salientes de la red local se enmascaren con la dirección IP de la interfaz de entrada.
 ```bash
 sudo iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
 ```
-7. Guarda la configuración del firewall para asegurarte de que se cargue al reiniciar, es necesario tener instalado `iptables-persistent`
+6. Guarda la configuración del firewall para asegurarte de que se cargue al reiniciar, es necesario tener instalado `iptables-persistent`
 ```bash
 sudo sh -c "iptables-save > /etc/iptables/rules.v4"
 ```
-8. Reiniciar el servicio de red
+7. Reiniciar el servicio de red
 ```bash
 sudo sh -c "iptables-save > /etc/iptables/rules.v4"
 ```
-9. Para verificar la configuracion de network
+8. Para verificar la configuracion de network
 ```bash
 ip a
 ```
